@@ -1,0 +1,21 @@
+name: pv-reminder
+main: com.adasjusk.pvcheck.PVCheckPlugin
+version: 1.3.1
+api-version: '1.21'
+author: adasjusk
+folia-supported: true
+softdepend:
+  - AuthMe
+  - PlasmoVoice
+
+commands:
+  pvreminder:
+    description: Manage PV reminder persistence
+    usage: /pvreminder <forget|remind> <player|uuid>
+    permission: pvreminder.manage
+    aliases: [pvr]
+
+permissions:
+  pvreminder.manage:
+    description: Allows managing the reminder list and sending reminders
+    default: op
