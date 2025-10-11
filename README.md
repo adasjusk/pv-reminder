@@ -26,3 +26,6 @@ channels:
 # 🔌 Compatibility
 Minecraft: 1.21.8+ (may work on older versions but not guaranteed) <br>
 Servers: Paper, Purpur, Folia and forks
+# 🧨 Commands
+*/pvreminder* forget <player|uuid> — remove a player from the reminded list <br>
+*/pvreminder* remind <player|uuid> — reminds a player and removes from the reminded list
