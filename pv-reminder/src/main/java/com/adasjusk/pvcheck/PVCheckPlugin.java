@@ -125,7 +125,7 @@ implements Listener {
         }
         Player p = e.getPlayer();
         Component msg = this.prepareMessage(p);
-    p.getScheduler().runDelayed(this, task -> this.checkAndNotify(p, msg), () -> {}, this.joinDelay);
+    this.getServer().getScheduler().runTaskLater(this, () -> this.checkAndNotify(p, msg), this.joinDelay);
     }
 
     private void checkAndNotify(Player p, Component chatMsg) {
@@ -167,7 +167,7 @@ implements Listener {
         public void onAuthLogin(LoginEvent event) {
             Player p = event.getPlayer();
             Component msg = this.plugin.prepareMessage(p);
-            p.getScheduler().runDelayed(this.plugin, task -> this.plugin.checkAndNotify(p, msg), () -> {}, this.plugin.authDelay);
+            this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> this.plugin.checkAndNotify(p, msg), this.plugin.authDelay);
         }
     }
 
@@ -244,7 +244,7 @@ implements Listener {
                 Player online = Bukkit.getPlayer(targetUuid);
                 if (online != null && online.isOnline()) {
                     Component msg = this.prepareMessage(online);
-                    online.getScheduler().runDelayed(this, task -> online.sendMessage(msg), () -> {}, 1L);
+                    this.getServer().getScheduler().runTaskLater(this, () -> online.sendMessage(msg), 1L);
                     sender.sendMessage("Reminder sent to: " + online.getName() + " (" + targetUuid + ") and removed from list.");
                 } else {
                     sender.sendMessage("Player is offline. Removed from list, but cannot send reminder now.");

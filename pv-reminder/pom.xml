@@ -5,13 +5,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.adasjusk</groupId>
   <artifactId>pv-reminder</artifactId>
-  <version>1.4.0</version>
+  <version>2.0</version>
   <name>PVCheck</name>
   <description>Chat reminder for Plasmo Voice with configurable timing: before/after AuthMe, or auto. AuthMe optional.</description>
   <properties>
   <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <paper.version>1.21.10-R0.1-SNAPSHOT</paper.version>
+    <paper.version>1.21.11-R0.1-SNAPSHOT</paper.version>
   </properties>
   <repositories>
     <repository>
