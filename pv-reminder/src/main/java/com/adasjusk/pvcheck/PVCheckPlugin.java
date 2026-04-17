@@ -1,5 +1,4 @@
 package com.adasjusk.pvcheck;
-
 import fr.xephi.authme.events.LoginEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -10,6 +9,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -39,7 +39,6 @@ implements Listener {
     private String chatTemplate;
     private boolean authMePresent;
     private File remindedStore;
-
     public void onEnable() {
         this.saveDefaultConfig();
         this.reloadLocalConfig();
@@ -69,13 +68,10 @@ implements Listener {
             this.getLogger().info("Using before-auth checks (on join).");
         }
     }
-
     @Override
     public void onDisable() {
-        // Ensure persistent reminders are saved on shutdown
         this.saveRemindedPersistent();
     }
-
     private void reloadLocalConfig() {
         FileConfiguration cfg = this.getConfig();
         String modeStr = cfg.getString("mode", "auto").toUpperCase(Locale.ROOT).replace('-', '_');
@@ -93,7 +89,6 @@ implements Listener {
         this.exactChannels = cfg.getStringList("channels");
         this.chatTemplate = cfg.getString("message", "&7This server uses &aPlasmo Voice&7. Install: &bmodrinth.com/plugin/plasmo-voice");
     }
-
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
     public void onChannelRegister(PlayerRegisterChannelEvent e) {
         String ch = e.getChannel();
@@ -111,13 +106,11 @@ implements Listener {
             this.pvClients.add(e.getPlayer().getUniqueId());
         }
     }
-
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         UUID id = e.getPlayer().getUniqueId();
         this.pvClients.remove(id);
     }
-
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         if (this.mode == Mode.AFTER_AUTH || this.mode == Mode.AUTO && this.authMePresent) {
@@ -127,7 +120,6 @@ implements Listener {
         Component msg = this.prepareMessage(p);
     this.getServer().getScheduler().runTaskLater(this, () -> this.checkAndNotify(p, msg), this.joinDelay);
     }
-
     private void checkAndNotify(Player p, Component chatMsg) {
         if (p == null || !p.isOnline()) {
             return;
@@ -142,19 +134,16 @@ implements Listener {
             this.saveRemindedPersistent();
         }
     }
-
     private Component prepareMessage(Player p) {
         String msg = this.chatTemplate.replace("{player}", p.getName());
         return LegacyComponentSerializer.legacyAmpersand().deserialize(msg);
     }
-
     private static enum Mode {
         AUTO,
         AFTER_AUTH,
         BEFORE_AUTH;
 
     }
-
     public static class AuthMeHook
     implements Listener {
         private final PVCheckPlugin plugin;
@@ -170,7 +159,6 @@ implements Listener {
             this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> this.plugin.checkAndNotify(p, msg), this.plugin.authDelay);
         }
     }
-
     private void loadRemindedPersistent() {
         try {
             if (!this.getDataFolder().exists()) {
@@ -189,7 +177,6 @@ implements Listener {
                     try {
                         this.remindedPersistent.add(UUID.fromString(s));
                     } catch (IllegalArgumentException ignored) {
-                        // skip invalid uuid
                     }
                 }
             }
@@ -197,22 +184,19 @@ implements Listener {
             this.getLogger().warning("Failed to load reminded.yml: " + ex.getMessage());
         }
     }
-
     private void saveRemindedPersistent() {
         try {
             if (!this.getDataFolder().exists()) {
                 this.getDataFolder().mkdirs();
             }
             YamlConfiguration yml = new YamlConfiguration();
-            List<String> out = this.remindedPersistent.stream().map(UUID::toString).toList();
+            List<String> out = this.remindedPersistent.stream().map(UUID::toString).collect(Collectors.toList());
             yml.set("reminded", out);
             yml.save(this.remindedStore);
         } catch (IOException ex) {
             this.getLogger().warning("Failed to save reminded.yml: " + ex.getMessage());
         }
     }
-
-    // --- Command handling ---
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!command.getName().equalsIgnoreCase("pvreminder")) return false;
@@ -238,7 +222,6 @@ implements Listener {
                 sender.sendMessage(removed ? "Removed from reminded list: " + targetUuid : "Not in reminded list: " + targetUuid);
             }
             case "remind" -> {
-                // Remove first as requested, then attempt to send
                 this.remindedPersistent.remove(targetUuid);
                 this.saveRemindedPersistent();
                 Player online = Bukkit.getPlayer(targetUuid);
@@ -254,7 +237,6 @@ implements Listener {
         }
         return true;
     }
-
     @Override
     public java.util.List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!command.getName().equalsIgnoreCase("pvreminder")) return java.util.Collections.emptyList();
@@ -266,11 +248,10 @@ implements Listener {
             return Bukkit.getOnlinePlayers().stream()
                 .map(Player::getName)
                 .filter(n -> n.toLowerCase(Locale.ROOT).startsWith(prefix))
-                .toList();
+                .collect(Collectors.toList());
         }
         return java.util.Collections.emptyList();
     }
-
     private UUID parseUuidOrResolve(String arg) {
         try {
             return UUID.fromString(arg);
